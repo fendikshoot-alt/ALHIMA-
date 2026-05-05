@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALHIMA</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:10px;
+}
+
+h1{
+    color:white;
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+.container{
+    width:100%;
+    max-width:420px;
+}
+
+/* canvas */
+canvas{
+    width:100%;
+    background:white;
+    border-radius:12px;
+}
+
+/* tombol */
+.controls{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+button{
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+/* full button */
+.full{
+    grid-column:span 2;
+}
+
+/* warna */
+.btn1{background:#ff6b6b;color:white;}
+.btn2{background:#4ecdc4;color:white;}
+.btn3{background:#45b7d1;color:white;}
+.btn4{background:#f9ca24;}
+.btn5{background:#fd79a8;color:white;}
+.btn6{background:#a8e6cf;}
+.btn7{background:#ddd;}
+</style>
+</head>
+
+<body>
+
+<h1>🧮 ALHIMA</h1>
+
+<div class="container">
+
+<canvas id="c"></canvas>
+
+<div class="controls">
+<button class="btn1" onclick="S()">S</button>
+<button class="btn2" onclick="Aset()">A</button>
+<button class="btn3" onclick="Bset()">B</button>
+<button class="btn4" onclick="Cset()">C</button>
+<button class="btn5" onclick="AB()">A ∩ B</button>
+<button class="btn6" onclick="AUB()">A ∪ B</button>
+<button class="btn6" onclick="ALL()">A ∪ B ∪ C</button>
+<button class="btn5" onclick="ABC()">A ∩ B ∩ C</button>
+<button class="btn7 full" onclick="reset()">Reset</button>
+<button class="btn7 full" onclick="acak()">Acak</button>
+</div>
+
+</div>
+
+<script>
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+
+let A,B,C,points=[];
+
+// resize canvas HP
+function resize(){
+    let w=Math.min(window.innerWidth-20,420);
+    canvas.width=w;
+    canvas.height=w*0.75;
+    setup();
+}
+window.addEventListener("resize",resize);
+
+// setup data
+function setup(){
+    let cx=canvas.width/2;
+    let cy=canvas.height/2;
+
+    let r=canvas.width*0.22;
+
+    A={x:cx-r*0.8,y:cy,r:r};
+    B={x:cx+r*0.8,y:cy,r:r};
+    C={x:cx,y:cy-r*0.7,r:r};
+
+    points=[];
+    for(let i=0;i<40;i++){
+        points.push({
+            x:Math.random()*canvas.width,
+            y:Math.random()*canvas.height,
+            on:false
+        });
+    }
+
+    draw();
+}
+
+// cek titik dalam lingkaran
+function inC(p,c){
+    return Math.hypot(p.x-c.x,p.y-c.y)<=c.r;
+}
+
+// gambar
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    [A,B,C].forEach((c,i)=>{
+        ctx.beginPath();
+        ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+        ctx.strokeStyle=["red","blue","orange"][i];
+        ctx.lineWidth=3;
+        ctx.stroke();
+    });
+
+    // label
+    ctx.fillStyle="black";
+    ctx.font="14px Arial";
+    ctx.fillText("A",A.x,A.y);
+    ctx.fillText("B",B.x,B.y);
+    ctx.fillText("C",C.x,C.y);
+
+    points.forEach(p=>{
+        ctx.beginPath();
+        ctx.fillStyle=p.on?"yellow":"gray";
+        ctx.arc(p.x,p.y,p.on?5:3,0,Math.PI*2);
+        ctx.fill();
+    });
+}
+
+// operasi himpunan
+function apply(fn){
+    points.forEach(p=>p.on=fn(p));
+    draw();
+}
+
+function S(){apply(()=>true);}
+function Aset(){apply(p=>inC(p,A));}
+function Bset(){apply(p=>inC(p,B));}
+function Cset(){apply(p=>inC(p,C));}
+function AB(){apply(p=>inC(p,A)&&inC(p,B));}
+function AUB(){apply(p=>inC(p,A)||inC(p,B));}
+function ALL(){apply(p=>inC(p,A)||inC(p,B)||inC(p,C));}
+function ABC(){apply(p=>inC(p,A)&&inC(p,B)&&inC(p,C));}
+
+function reset(){
+    points.forEach(p=>p.on=false);
+    draw();
+}
+
+function acak(){
+    setup();
+}
+
+// start
+resize();
+</script>
+
+</body>
+</html>
